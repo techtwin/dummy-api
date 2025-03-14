@@ -3,7 +3,7 @@ import tracer from "dd-trace";
 tracer.init({ env: process.env.DD_ENV, service: process.env.DD_SERVICE })
 tracer.use('express')
 import express from 'express'
-import bidApp from './app'
+import bidApp from './app/bid/bidController.js'
 
 const PORT = process.env.PORT || 3039
 
