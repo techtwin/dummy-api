@@ -13,7 +13,6 @@ jobs:
   postman-diff:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/postman-pr-diff
+      - uses: techtwin/postman-pr-diff@v0.1.0
         with:
           github-token: ${{ github.token }}
