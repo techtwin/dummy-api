@@ -1,0 +1,89 @@
+name: Postman PR Diff
+description: Compares Postman collection files between the PR branch and the base branch, then posts a summary comment on the PR.
+
+inputs:
+  github-token:
+    description: GitHub token used to post a comment on the pull request.
+    required: true
+  collection-glob:
+    description: Glob pattern (relative to repo root) used to locate Postman collection JSON files.
+    required: false
+    default: "**/*.postman_collection.json"
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout base branch
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.base.sha }}
+        path: _postman_base
+        token: ${{ inputs.github-token }}
+
+    - name: Checkout PR branch
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        path: _postman_head
+        token: ${{ inputs.github-token }}
+
+    - name: Diff Postman collections
+      id: diff
+      shell: bash
+      run: |
+        set +e
+        GLOB="${{ inputs.collection-glob }}"
+
+        # Collect all collection files from both sides
+        BASE_FILES=$(cd _postman_base && find . -path "./.git" -prune -o -name "*.postman_collection.json" -print | sort)
+        HEAD_FILES=$(cd _postman_head && find . -path "./.git" -prune -o -name "*.postman_collection.json" -print | sort)
+
+        ALL_FILES=$(echo -e "$BASE_FILES\n$HEAD_FILES" | sort -u | grep -v '^$')
+
+        COMMENT_BODY="## Postman Collection Diff\n\n"
+        CHANGED=0
+
+        while IFS= read -r FILE; do
+          BASE_PATH="_postman_base/$FILE"
+          HEAD_PATH="_postman_head/$FILE"
+
+          if [ ! -f "$BASE_PATH" ] && [ -f "$HEAD_PATH" ]; then
+            COMMENT_BODY+="### ➕ Added: \`$FILE\`\n\n"
+            COMMENT_BODY+="\`\`\`diff\n"
+            COMMENT_BODY+=$(diff /dev/null "$HEAD_PATH" | head -200)
+            COMMENT_BODY+="\n\`\`\`\n\n"
+            CHANGED=1
+          elif [ -f "$BASE_PATH" ] && [ ! -f "$HEAD_PATH" ]; then
+            COMMENT_BODY+="### ➖ Removed: \`$FILE\`\n\n"
+            CHANGED=1
+          else
+            DIFF_OUTPUT=$(diff <(python3 -m json.tool "$BASE_PATH" 2>/dev/null || cat "$BASE_PATH") \
+                              <(python3 -m json.tool "$HEAD_PATH" 2>/dev/null || cat "$HEAD_PATH"))
+            if [ -n "$DIFF_OUTPUT" ]; then
+              COMMENT_BODY+="### ✏️ Modified: \`$FILE\`\n\n"
+              COMMENT_BODY+="\`\`\`diff\n"
+              COMMENT_BODY+=$(echo "$DIFF_OUTPUT" | head -200)
+              COMMENT_BODY+="\n\`\`\`\n\n"
+              CHANGED=1
+            fi
+          fi
+        done <<< "$ALL_FILES"
+
+        if [ "$CHANGED" -eq 0 ]; then
+          COMMENT_BODY+="No changes detected in Postman collection files."
+        fi
+
+        # Write comment body to a file to avoid shell quoting issues
+        printf '%b' "$COMMENT_BODY" > /tmp/postman_diff_comment.md
+        echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+
+    - name: Post PR comment
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+      run: |
+        COMMENT=$(cat /tmp/postman_diff_comment.md)
+        gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" \
+          -f body="$COMMENT"
