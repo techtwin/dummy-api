@@ -50,7 +50,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"id\": 4,\n    \"title\": \"Book 4\"\n}",
+          "raw": "{\n    \"obj1\": {\n        \"id\": 1,\n        \"title\": \"Book 1\"\n    },\n    \"obj2\": {\n        \"id\": 2,\n        \"title\": \"Book 2\"\n    },\n    \"obj3\": {\n        \"id\": 3,\n        \"title\": \"Book 3\"\n    },\n    \"obj4\": {\n        \"id\": 4,\n        \"title\": \"Book 4\"\n    }\n}",
           "options": {
             "raw": {
               "language": "json"
