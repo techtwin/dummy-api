@@ -69,6 +69,34 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Create books Copy",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"obj1\": {\n        \"id\": 1,\n        \"title\": \"Book 1: The Legend\"\n    },\n    \"obj2\": {\n        \"id\": 2,\n        \"title\": \"Book 2\"\n    },\n    \"obj3\": {\n        \"id\": 3,\n        \"title\": \"Book 3\"\n    },\n    \"primaryResidence\": {\n        \"streetAddress\": \"974 New York Ave\",\n        \"city\": \"Brooklyn\",\n        \"jurisdiction\": \"NY\",\n        \"zipCode\": \"11203\"\n    },\n    \"drivers\": [\n        {\n            \"id\": \"driver1\",\n            \"firstName\": \"Bob\",\n            \"lastName\": \"Barker\",\n            \"age\": 73\n        }\n    ],\n    \"vehicles\": [\n        {\n            \"id\": \"veh1\",\n            \"vin\": \"SKAL2ASKA\"\n        }\n    ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{url}}/api/books/{{id}}",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "api",
+            "books",
+            "{{id}}"
+          ]
+        }
+      },
+      "response": []
     }
   ]
 }
