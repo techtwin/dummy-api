@@ -1,0 +1,34 @@
+{
+  "info": {
+    "_postman_id": "62495cae-3e44-4ea3-99b0-9680b2f0aa0d",
+    "name": "dummy-api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "13303240"
+  },
+  "item": [
+    {
+      "name": "New Request",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"sa\": \"sa\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:3039",
+          "host": [
+            "localhost"
+          ],
+          "port": "3039"
+        }
+      },
+      "response": []
+    }
+  ]
+}
