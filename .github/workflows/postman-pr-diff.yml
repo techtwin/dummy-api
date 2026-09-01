@@ -12,6 +12,6 @@ jobs:
   postman-diff:
     runs-on: ubuntu-latest
     steps:
-      - uses: techtwin/postman-pr-diff@v0.1.4
+      - uses: techtwin/postman-pr-diff@v0.1.5
         with:
           github-token: ${{ github.token }}
